@@ -4,11 +4,14 @@
 
 ## Требования
 
-- Python 3.10+
-- Java JDK 17+ (обязательно для PySpark)
-- Устанавливать Hadoop или Spark отдельно **не нужно** — всё включено в `pyspark`
+| Способ запуска | Что нужно |
+|---|---|
+| Docker Compose | [Docker Desktop](https://www.docker.com/products/docker-desktop/) |
+| Локально | Python 3.10+, Java JDK 17+ |
 
-> На Windows `winutils.exe` и `hadoop.dll` скачиваются автоматически при первом запуске.
+Устанавливать Hadoop или Spark отдельно **не нужно** — всё включено в `pyspark`.
+
+> На Windows при локальном запуске `winutils.exe` и `hadoop.dll` скачиваются автоматически.
 
 ## Установка
 
@@ -40,7 +43,68 @@ pip install -r requirements.txt
 
 ## Запуск
 
-### Шаг 1 — ETL (извлечение, трансформация, загрузка в Parquet)
+### Вариант 1 — Docker Compose (рекомендуется)
+
+Требуется только [Docker Desktop](https://www.docker.com/products/docker-desktop/).
+Java, Python и все зависимости устанавливаются внутри контейнера автоматически.
+
+**1. Собрать образ** (SQLite JDBC JAR скачивается при сборке):
+
+```bash
+docker-compose build
+```
+
+**2. Запустить ETL-пайплайн** (генерация БД + Spark-трансформация, ~12.7 млн записей):
+
+```bash
+docker-compose run --rm etl
+```
+
+**3. Запустить дашборд:**
+
+```bash
+docker-compose up dashboard
+```
+
+Открыть в браузере: [http://localhost:8501](http://localhost:8501)
+
+Данные сохраняются в именованном Docker volume `app_data` и доступны обоим сервисам.
+
+---
+
+### Вариант 2 — Локальный запуск
+
+#### Установка
+
+1. Склонировать репозиторий:
+
+```bash
+git clone https://github.com/AnKlvy/big-data-course-project.git
+cd big-data-course-project
+```
+
+2. Создать виртуальное окружение и активировать его:
+
+```bash
+python -m venv .venv
+
+# Windows (PowerShell)
+.venv\Scripts\Activate.ps1
+
+# Linux / macOS
+source .venv/bin/activate
+```
+
+3. Установить зависимости:
+
+```bash
+pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+#### Запуск
+
+**Шаг 1 — ETL (извлечение, трансформация, загрузка в Parquet):**
 
 ```bash
 python main.py
@@ -52,7 +116,7 @@ python main.py
 - на Windows скачиваются `winutils.exe` и `hadoop.dll` в `jars/hadoop/bin/`
 - результат сохраняется в `data/processed/parquet/`
 
-### Шаг 2 — Дашборд
+**Шаг 2 — Дашборд:**
 
 ```bash
 streamlit run app.py
@@ -64,6 +128,9 @@ streamlit run app.py
 
 ```
 big-data-course-project/
+├── Dockerfile          # образ: Python 3.11 + Java 17 + зависимости
+├── docker-compose.yml  # сервисы: etl, dashboard
+├── .dockerignore
 ├── app.py              # Streamlit-дашборд
 ├── main.py             # ETL точка входа
 ├── dataset.py          # Генерация SQLite БД
