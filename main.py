@@ -54,9 +54,9 @@ def main():
     ensure_sqlite_jar()
     ensure_raw_db()
 
-    if "--spark-run" not in sys.argv:
-        run_with_spark_submit()
-        return
+    # if "--spark-run" not in sys.argv:
+    #     run_with_spark_submit()
+    #     return
 
     initialize_spark()
 

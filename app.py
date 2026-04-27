@@ -1,7 +1,7 @@
 import os
 import streamlit as st
-from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
+from spark_app.spark_session import get_spark_session
 
 DATA_PATH = "data/processed/parquet/"
 
@@ -14,10 +14,7 @@ if not os.path.exists(DATA_PATH) or len(os.listdir(DATA_PATH)) == 0:
 
 # Инициализация SparkSession с индикатором загрузки
 with st.spinner("Загрузка данных..."):
-    spark = SparkSession.builder \
-        .appName("HeartSoundsDashboard") \
-        .config("spark.driver.memory", "4g") \
-        .getOrCreate()
+    spark = get_spark_session()
 
     df_spark = spark.read.parquet(DATA_PATH)
 
