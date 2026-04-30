@@ -7,6 +7,7 @@ from spark_app.spark_session import get_spark_session
 from spark_app.extract import extract_from_sqlite
 from spark_app.transform import transform
 from spark_app.load import load_to_parquet
+from spark_app.ml import train_and_evaluate
 
 RAW_DB_PATH = "data/raw/heart_sounds.db"
 OUTPUT_PATH = "data/processed/parquet/"
@@ -30,9 +31,11 @@ def ensure_raw_db():
 def initialize_spark():
     spark = get_spark_session()
 
-    df = extract_from_sqlite(spark, RAW_DB_PATH)
-    df = transform(df)
-    load_to_parquet(df, OUTPUT_PATH)
+    # df = extract_from_sqlite(spark, RAW_DB_PATH)
+    # df = transform(df)
+    # load_to_parquet(df, OUTPUT_PATH)
+
+    train_and_evaluate(spark, OUTPUT_PATH)
 
     spark.stop()
 
@@ -63,3 +66,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+    # JVM-потоки Spark на Windows не завершаются сами — принудительный выход
+    os._exit(0)
